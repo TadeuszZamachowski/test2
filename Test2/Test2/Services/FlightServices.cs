@@ -20,16 +20,56 @@ namespace TestExample.Services
 
         public async Task<object> GetFlightInfo(string cityName)
         {
-           // var truck = await _dbContext.FireTrucks.Where(x => x.IdFireTruck == IdFireTruck)
-           //                             .Include(x => x.FireTruckActions)
-           //                             .ThenInclude(x => x.Action)   
-           //                             .ThenInclude(x => x.FirefighterActions)
-           //                             .ThenInclude(x => x.Firefighter)
-            //                            .OrderByDescending(x => x.IdFireTruck)
-            //                            .FirstAsync();
+            if (cityName == null)
+            {
+                var flights = from fp in _dbContext.FlightPassangers
+                              join f in _dbContext.Flights on fp.IdFlight equals f.IdFlight
+                              join p in _dbContext.Passengers on fp.IdPassanger equals p.IdPassanger
+                              select new
+                              {
+                                  IdFlight = f.IdFlight,
+                                  FlightDate = f.FlightDate,
+                                  Comments = f.Comments,
+                                  IdPlane = f.IdPlane,
+                                  IdCity = f.IdCityDict,
 
-            
-            //var flights = await _dbContext.Flights
+                                  passengers = new Passenger
+                                  {
+                                      FirstName = p.FirstName,
+                                      LastName = p.LastName
+                                  }
+
+
+                              };
+                return flights;
+
+
+
+
+            } else
+            {
+                var flights = from fp in _dbContext.FlightPassangers
+                              join f in _dbContext.Flights on fp.IdFlight equals f.IdFlight
+                              join p in _dbContext.Passengers on fp.IdPassanger equals p.IdPassanger
+                              join c in _dbContext.CityDicts on f.IdCityDict equals c.IdCityDict
+                              where c.City == cityName
+                              select new
+                              {
+                                  IdFlight = f.IdFlight,
+                                  FlightDate = f.FlightDate,
+                                  Comments = f.Comments,
+                                  IdPlane = f.IdPlane,
+                                  IdCity = f.IdCityDict,
+
+                                  passengers = new Passenger
+                                  {
+                                      FirstName = p.FirstName,
+                                      LastName = p.LastName
+                                  }
+                              };
+                return flights;
+            }
+
             return null;
         }
 

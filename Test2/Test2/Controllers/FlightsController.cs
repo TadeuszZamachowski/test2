@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Newtonsoft.Json.Linq;
 using System;
 using System.Threading.Tasks;
 using Test2.Models;
@@ -19,22 +20,27 @@ namespace TestExample.Controllers
             _service = firefighterServices;
         }
 
-        [HttpGet]
-        public async Task<IActionResult> GetFireTruck([FromBody]  string cityName)
+        [HttpGet("{cityName?}")]
+        public async Task<IActionResult> GetFlightInfo(string cityName)
         {
+            
             return Ok(await _service.GetFlightInfo(cityName));
         }
 
-        [HttpPut("{IdAction}")]
-        public async Task<IActionResult> UpdateEndDateOfFireFightAction([FromBody] Flight flight, [FromBody] Plane plane)
+        [HttpPost]
+        public async Task<IActionResult> AddNewFlight([FromBody] JObject data)
         {
+            Flight flight = data["flightData"].ToObject<Flight>();
+            Plane plane = data["planeData"].ToObject<Plane>();
+
+
             int result = await _service.AddNewFlight(flight, plane);
             if (result == 1)
             {
-                return Ok("Succesfully updated end date");
+                return Ok("Flight added");
             } else
             {
-                return BadRequest("End date cannot be null or earlier then start date");
+                return BadRequest("Plane already assigned to flight");
             }
             
         }

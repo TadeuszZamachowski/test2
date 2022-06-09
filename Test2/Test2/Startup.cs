@@ -10,8 +10,12 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using TestExample.Interfaces;
+using TestExample.Services;
+using TestExample.Contexts;
+using Microsoft.EntityFrameworkCore;
 
-namespace Test2
+namespace TestExample
 {
     public class Startup
     {
@@ -25,11 +29,18 @@ namespace Test2
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            services.AddScoped<IFlightServices, FlightServices>();
+            services.AddDbContext<FlightsDbContext>(options =>
+        options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection")));
 
+            services.AddControllersWithViews()
+            .AddNewtonsoftJson(options =>
+             options.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore
+);
             services.AddControllers();
             services.AddSwaggerGen(c =>
             {
-                c.SwaggerDoc("v1", new OpenApiInfo { Title = "Test2", Version = "v1" });
+                c.SwaggerDoc("v1", new OpenApiInfo { Title = "TestExample", Version = "v1" });
             });
         }
 
@@ -40,7 +51,7 @@ namespace Test2
             {
                 app.UseDeveloperExceptionPage();
                 app.UseSwagger();
-                app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "Test2 v1"));
+                app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "TestExample v1"));
             }
 
             app.UseRouting();
